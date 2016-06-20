@@ -19,7 +19,7 @@ void Check::deleteCheck(int index)
 	std::vector<type>::iterator it;
 	if (findIndexPos(index, it)) {
 		table.erase(it);
-		Check:resetRate();
+		Check::resetRate();
 	}
 	else std::cout << "未找到相关考核信息!\n";
 }

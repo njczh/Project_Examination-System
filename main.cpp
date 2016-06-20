@@ -581,7 +581,6 @@ void teacherManagementMenu()
 }
 void teacherMenu(int i)
 {
-	int n;
 	char choice;
 	printTeacherMenu(i);
 	do
@@ -784,8 +783,7 @@ void studentManagementMenu_3()
 			bool flag = false;//查无此人
 			cout << "请输入学生学号：";
 			cin >> findNum;
-			auto iter = myStudents.begin();
-			for (iter; iter != myStudents.end(); ++iter)
+			for (auto iter = myStudents.begin(); iter != myStudents.end(); ++iter)
 			{
 				if (iter->getStuNum() == findNum) {
 					cout << "已找到！该学生信息如下：" << endl
@@ -793,15 +791,14 @@ void studentManagementMenu_3()
 						<< "------------------------------------------------------------------" << endl
 						<< setw(10) << "学号" << setw(8) << "姓名" << setw(6) << "性别" << setw(14) << "学院" << setw(12) << "专业" << setw(12) << "班级" << endl
 						<< "------------------------------------------------------------------" << endl;
-						(*iter).showStuInfo();
+					(*iter).showStuInfo();
 					cout << "------------------------------------------------------------------" << endl
 						<< right;
 					flag = true;
 					break;
 				}
-				break;
 			}
-			if (iter == myStudents.end()) cout << "查无此人！请确认学生学号！" << endl;
+			if (!flag) cout << "查无此人！请确认学生学号！" << endl;
 		}
 		break;
 
@@ -811,8 +808,7 @@ void studentManagementMenu_3()
 			bool flag = false;//查无此人
 			cout << "请输入学生姓名：";
 			cin >> findName;
-			auto iter = myStudents.begin();
-			for (iter; iter != myStudents.end(); ++iter)
+			for (auto iter = myStudents.begin(); iter != myStudents.end(); ++iter)
 			{
 				if (iter->getName() == findName) {
 					cout << "已找到！该学生信息如下：" << endl
@@ -850,7 +846,7 @@ void studentManagementMenu_4()
 	}
 	string number;
 	int choice_2;
-	cout << "请输入想要修改学生信息的序号：";
+	cout << "请输入想要修改学生信息的学号：";
 	cin >> number;
 	auto iter = myStudents.begin();
 	while (iter != myStudents.end())
@@ -858,15 +854,15 @@ void studentManagementMenu_4()
 		if ((*iter).getStuNum() == number)
 		{
 			cout << "正在修改\"" << (*iter).getName() << "\"，编号：" << iter->getStuNum() << endl
-				<< "\t1.修改名字" << endl
+				<< "\t1.修改名字" 
 				<< "\t2.修改性别" << endl
-				<< "\t3.修改学号" << endl
+				<< "\t3.修改学号" 
 				<< "\t4.修改学院" << endl
-				<< "\t5.修改专业" << endl
+				<< "\t5.修改专业"
 				<< "\t6.修改班级" << endl
-				<< "\t7.增加课程" << endl
+				<< "\t7.增加课程" 
 				<< "\t8.删除课程" << endl
-				<< "\t9.修改密码" << endl
+				<< "\t9.修改密码" 
 				<< "\t0.取消" << endl
 				<< "请输入修改项目序号：";
 			cin >> choice_2;
@@ -1132,8 +1128,14 @@ void adminLogin()
 			cin >> password;
 			if (password == "admin")
 			{
-				GoToXY(0, 19);
-				cout << "身份已认证！" << endl
+				GoToXY(1, 8);
+				cout << "┌───────────────┐" << endl;
+				GoToXY(1, 9);
+				cout << "│     身份已认证！正在登录！   │" << endl;
+				GoToXY(1, 10);
+				cout << "└───────────────┘" << endl;
+				Sleep(10000);
+					/*
 					<< "┌───────────────┐" << endl
 					<< "│     正    在    载    入     │" << endl
 					<< "└───────────────┘" << endl;
@@ -1143,6 +1145,7 @@ void adminLogin()
 					cout << "■" ;
 					Sleep(200);
 				}
+				*/
 				adminMenu();
 			}
 			else
