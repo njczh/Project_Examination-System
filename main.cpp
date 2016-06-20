@@ -3,6 +3,7 @@
 #include "Student.h"
 #include "Teacher.h"
 #include "printMenu.h"
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -108,7 +109,7 @@ void courseManagementMenu_3()
 	}
 	string number;
 	int choice_2;
-	cout << "请输入想要修改课程信息的编号：";
+	cout << "请输入想要修改课程信息的编号(9位)：";
 	cin >> number;
 	auto iter = myCourses.begin();
 	while (iter != myCourses.end())
@@ -227,11 +228,13 @@ void teacherModifyCourseCheck(int i)
 		case '2':
 		{
 			myTeachers[i].showTeacherAllCourses();
-			cout << "请输入课程编号：";
+			cout << "请选择课程（方括号内的序号）：";
 			int No_;
 			cin >> No_;
+			if (myTeachers[i].ofr(No_)) break;
+			cout << "\n正在进行【增加考核项目】，请按提示进行操作！" << endl;
 			myTeachers[i].showCourseInfo(No_);
-			cout << "请输入考核项目名字：";
+			cout << "请输入新考核项目的名字：";
 			string nm;
 			cin >> nm;
 			myTeachers[i].createCheck(No_, nm);
@@ -244,12 +247,13 @@ void teacherModifyCourseCheck(int i)
 			cout << "请输入课程编号：";
 			int No_;
 			cin >> No_;
+			if (myTeachers[i].ofr(No_)) break;
+			cout << "\n正在进行【删除考核项目】，请按提示进行操作！" << endl;
 			myTeachers[i].showCourseInfo(No_);
 			cout << "请输入想删除考核项目的序号：";
 			int index;
 			cin >> index;
 			myTeachers[i].delCheck(No_, index - 1);
-			cout << "删除完成！" << endl;
 			break;
 		}
 		case '4':
@@ -258,6 +262,9 @@ void teacherModifyCourseCheck(int i)
 			cout << "请输入课程编号：";
 			int No_;
 			cin >> No_;
+			if (myTeachers[i].ofr(No_)) break;
+			cout << "\n正在进行【修改考核比例】，请按提示进行操作！" << endl;
+			myTeachers[i].showCourseInfo(No_);
 			myTeachers[i].resetScoreRate(No_);
 			break;
 		}
@@ -393,9 +400,12 @@ void teacherManagementMenu_4()
 {
 	system("cls");
 	if (!myTeachers.empty()) {
-		cout << "正在进行【修改教师信息】，请按照提示操作。" << endl;
+		cout << "------------------------------------------------------------------" << endl
+			<< setw(8) << "工号" << setw(8) << "姓名" << setw(6) << "性别" << "   授课科目" << endl
+			<< "------------------------------------------------------------------" << endl;
 		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
 			(*iter).showTeacherInfo();
+		cout << "------------------------------------------------------------------" << endl;
 	}
 	else {
 		cout << "抱歉！暂无教师！" << endl; return;
@@ -539,7 +549,7 @@ void teacherManagementMenu_5()
 	if (!myTeachers.empty())
 	{
 		cout << "------------------------------------------------------------------" << endl
-			<< setw(7) << "工号" << setw(6) << "姓名" << setw(4) << "性别" << "   " << endl
+			<< setw(8) << "工号" << setw(8) << "姓名" << setw(6) << "性别" << "   授课科目" << endl
 			<< "------------------------------------------------------------------" << endl;
 		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
 			(*iter).showTeacherInfo();
@@ -626,23 +636,41 @@ void teacherMenu(int i)
 		case '2':
 			if (myTeachers[i].is_CourseEmpty()) { cout << "暂无课程！"; break; }
 			teacherModifyCourseCheck(i);
+			//std::system("pause");
 			break;
 
 		case '3':
 			if (myTeachers[i].is_CourseEmpty()) { cout << "暂无课程！"; break; }
 			myTeachers[i].showTeacherAllCourses();
+			std::system("pause");
 			break;
 
 		case '4':
+		{
+			string newPW;
+			string newPW2;
+			cout << "请输入新密码：";
+			cin >> newPW;
+			cout << "请再次输入密码：";
+			cin >> newPW2;
+			if (newPW == newPW2)
+			{
+				myTeachers[i].setPassword(newPW);
+				cout << "修改成功！" << endl;
+			}
+			else cout << "修改失败！两次密码不匹配，请重试！" << endl;
+			std::system("pause");
+			break;
+		}
+		case '5':
 			continue;
 
 		default:
-			cout << "输入有误，请重新输入（1/2/3/4）: ";
+			cout << "输入有误，请重新输入（1/2/3/4/5）: ";
 			continue;
 		}
-		std::system("pause");
 		printTeacherMenu(i);
-	} while (choice != '4');
+	} while (choice != '5');
 }
 void teacherLogin()
 {
@@ -654,14 +682,18 @@ void teacherLogin()
 	GoToXY(13, 7);
 	cin >> username;
 	for (i = 0; i < total; ++i)
-		if (username == myTeachers[i].getName())
+		if (username == myTeachers[i].getWorkNum())
 		{
 			GoToXY(13, 10);
 			cin >> password;
 			if (password == myTeachers[i].getPassword())
 			{
-				GoToXY(0, 19);
-				cout << "登录成功!";
+				GoToXY(1, 8);
+				cout << "┌───────────────┐" << endl;
+				GoToXY(1, 9);
+				cout << "│     身份已认证！正在登录！   │" << endl;
+				GoToXY(1, 10);
+				cout << "└───────────────┘" << endl;
 				Sleep(2000);
 				teacherMenu(i);
 			}
@@ -1134,7 +1166,7 @@ void adminLogin()
 				cout << "│     身份已认证！正在登录！   │" << endl;
 				GoToXY(1, 10);
 				cout << "└───────────────┘" << endl;
-				Sleep(10000);
+				Sleep(2000);
 					/*
 					<< "┌───────────────┐" << endl
 					<< "│     正    在    载    入     │" << endl
@@ -1158,9 +1190,89 @@ void adminLogin()
 		}
 }
 
+void loadFile()
+{
+
+	cout<< "┌──────────────┐" << endl
+		<< "│正在载入…                  │" << endl
+		<< "├──────────────┤" << endl
+		<< "│                            │" << endl
+		<< "│                            │" << endl
+		<< "│                            │" << endl
+		<< "│                            │" << endl
+		<< "│                            │" << endl
+		<< "└──────────────┘" << endl;
+	Teacher newTeacher;
+	string newName;
+	string newSex;
+	string newTeacherID;
+	ifstream inTeacher("teachersData.dat");
+	if (!inTeacher)
+	{
+		cerr << "Can not open teacherData.dat !";
+		exit(1);
+	}
+	while (!inTeacher.eof())
+	{
+		inTeacher >> newName >> newSex >> newTeacherID;
+		newTeacher.setAllData(newName, newSex, newTeacherID, 0, "000000");
+		myTeachers.push_back(newTeacher);
+	}
+	inTeacher.close();
+	GoToXY(2, 4);
+	cout << "1.教师信息…………………100%" << endl;
+
+	Course newCourse;
+	string newCourseID;
+	int newTime;
+	ifstream inCourse("coursesData.dat");
+	if (!inCourse)
+	{
+		cerr << "Can not open coursesData.dat !";
+		exit(1);
+	}
+	while (!inCourse.eof())
+	{
+		inCourse >> newName >> newCourseID >> newTeacherID >> newTime;
+		newCourse.setName(newName);
+		newCourse.setNumber(newCourseID, newTeacherID);
+		newCourse.setTime(newTime);
+		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
+			if (iter->getWorkNum() == newTeacherID)
+				iter->addCourse(newCourse);
+		myCourses.push_back(newCourse);
+	}
+	inCourse.close();
+	GoToXY(2, 5);
+	cout << "2.课程信息…………………100%" << endl;
+
+	Student newStudent;
+	string newNum;
+	string newIns;
+	string newMajor;
+	string newClass;
+	ifstream inStudent("studentsData.dat");
+	if (!inStudent)
+	{
+		cerr << "Can not open studentsData.dat !";
+		exit(1);
+	}
+	while (!inStudent.eof())
+	{
+		inStudent >> newName >> newSex >> newNum >> newIns >> newMajor >> newClass;
+		newStudent.setAllData(newName, newSex, newNum, newIns, newMajor, newClass, "000000");
+		myStudents.push_back(newStudent);
+	}
+	inStudent.close();
+	GoToXY(2, 6);
+	cout << "3.学生信息…………………100%" << endl;
+	GoToXY(0, 9);
+}
+
 int main()
 {
-	
+	loadFile();
+	system("pause");
 	extern vector<Course> myCourses;
 	char choice;
 	printMainMenu();

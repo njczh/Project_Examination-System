@@ -63,10 +63,10 @@ void Teacher::setAllData(string name,string sex,string workNum,int classSum,stri
 /*成员函数*/
 void Teacher::showTeacherInfo()											//打印教师基本信息（工号、姓名、性别、所教科目）
 {
-	cout<<setw(7)<<this->workNum<<setw(6)<<this->name<<setw(4)<<this->sex<<"   ";
-	for(int i=0;i<this->classSum;i++)
-		cout<<setw(6)<<courses[i].getName();
-	cout<<endl;
+	cout<<setw(8)<<this->workNum<<setw(8)<<this->name<<setw(6)<<this->sex<<"   ";
+	for (int i = 0; i < this->classSum; i++)
+		cout << left << setw(10) << courses[i].getName();
+	cout << right << endl;
 }
 void Teacher::showTeacherAllCourses()					//打印教师下所有的课程名称（遍历课程vector，调用课程的print函数）
 {

@@ -55,9 +55,11 @@ double Course::getScore()
 void Course::showInfo()
 {
 	std::cout << "------------------------------------------------\n";
-	std::cout << "   课程名称：" << name << " 课时（周）：" << time << std::endl;
+	std::cout << "课程名称:" << name << " 课程编号:" << number << " 课时:" << time << std::endl;
 	std::cout << "------------------------------------------------\n";
 	std::cout << "                评分标准\n";
+	std::cout << "------------------------------------------------\n";
+	std::cout << std::left << std::setw(4) << "序号" << std::setw(15) << "名称" << std::right << std::endl;
 	std::cout << "------------------------------------------------\n";
 	check.showTableInfo();
 	std::cout << "------------------------------------------------\n";

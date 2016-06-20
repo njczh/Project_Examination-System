@@ -67,6 +67,12 @@ public:
 		else return false;
 	}
 
+	bool ofr(int n)//检查下标是否越界
+	{
+		if (n < 1 || n > courses.size()) { cout << "输入有误！请检查输入！\n"; return true;}
+		else { system("cls"); return false; }
+	}
+
 	void showCourseInfo(int n)
 	{
 		courses[n - 1].showInfo();

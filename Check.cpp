@@ -19,6 +19,7 @@ void Check::deleteCheck(int index)
 	std::vector<type>::iterator it;
 	if (findIndexPos(index, it)) {
 		table.erase(it);
+		std::cout << "删除完成！请按提示重新设置比例！" << std::endl;
 		Check::resetRate();
 	}
 	else std::cout << "未找到相关考核信息!\n";
@@ -48,6 +49,7 @@ void Check::resetRate()
 	double r;
 	std::vector<double> temp;
 	std::vector<type>::iterator it;
+	if (table.empty()) { std::cout << "暂无考核项目！请先添加！" << std::endl; return; }//CZH添
 	while (1) {
 		std::cout << "请输入各类测验的占分比：" << std::endl;
 		for (it = table.begin(); it != table.end(); it++) {
@@ -83,7 +85,11 @@ void Check::showTableInfo()
 {
 	std::cout << std::left;
 	std::vector<type>::iterator it;
+	if (table.empty()) {
+		std::cout << "暂无考核项目！请先添加！" << std::endl; return;
+	}
 	for (it = table.begin(); it != table.end(); it++) {
+		std::cout << std::setw(4) << (it - table.begin() + 1);
 		std::cout << std::setw(15) << it->name;
 		std::cout << "占总分：" << it->rate * 100 << "%";
 		std::cout << std::endl;
@@ -140,13 +146,9 @@ void Check::operateScore(int index, int n, double sc)
 bool Check::findIndexPos(int index, std::vector<type>::iterator & it)
 {
 	if (table.size() > index) return false;
-	else {
-		for (it = table.begin(); it != table.end(); it++) {
-			if (it - table.begin() == index) {
+	else for (it = table.begin(); it != table.end(); it++) 
+			if (it - table.begin() == index) 
 				return true;
-			}
-		}
-	}
 }
 
 void Check::printCheck(std::vector<type>::iterator it)
