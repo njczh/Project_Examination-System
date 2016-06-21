@@ -276,3 +276,49 @@ bool Teacher::is_IDPass(string password)							//密码是否验证通过
 	if(this->password==password) return true;
 	else return false;
 }
+
+string Teacher::getCourseID(int index)
+{
+	return courses[index].getNumber();
+}
+
+int Teacher::getCourseTime(int index)
+{
+	return courses[index].getTime();
+}
+
+int Teacher::getCourseCheckNum(int index)
+{
+	return courses[index].getCheckNum();
+}
+
+string Teacher::getCheckName(int index, int cindex)
+{
+	return courses[index].getCheckName(cindex);
+}
+
+double Teacher::getCheckRate(int index, int cindex)
+{
+	return courses[index].getCheckRate(cindex);
+}
+
+string Teacher::getClassID(int index)
+{
+	return courses[index].getClassID();
+}
+
+string Teacher::getTeachID(int index)
+{
+	return courses[index].getTeacherID();
+}
+
+void Teacher::initialCheck(string name[], double rate[], int size, int index)
+{
+	courses[index].initialCheck(name, rate, size);
+}
+
+void Teacher::setCourse(string name, string cID, string tID, int time)
+{
+	Course c(name, time, cID, tID);
+	courses.push_back(c);
+}

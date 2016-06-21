@@ -1,10 +1,21 @@
 #include "Course.h"
 
+Course::Course()
+{
+	name = "Unknown";
+	time = 0;
+	number = "000000000";
+	classID = "000";
+	teacherID = "000000";
+}
+
 Course::Course(std::string nm = "<unknown>", int t = 0, std::string courseID = "000", std::string teacherID = "000000")
 {
 	name = nm;
 	time = t;
 	number = courseID + teacherID;
+	classID = courseID;
+	this->teacherID = teacherID;
 }
 
 void Course::createCheck(std::string nm)
@@ -62,7 +73,7 @@ void Course::showInfo()
 	std::cout << std::left << std::setw(4) << "ÐòºÅ" << std::setw(15) << "Ãû³Æ" << std::right << std::endl;
 	std::cout << "------------------------------------------------\n";
 	check.showTableInfo();
-	std::cout << "------------------------------------------------\n\n";
+	std::cout << "------------------------------------------------\n";
 }
 
 std::string Course::getName()
@@ -93,10 +104,52 @@ std::string Course::getNumber()
 void Course::setNumber(std::string courseID, std::string teacherID)
 {
 	number = courseID + teacherID;
+	classID = courseID;
+	this->teacherID = teacherID;
 }
 
 int Course::getCheckNum()
 {
 	return this->check.getCheckNum();
+}
+
+std::string Course::getTeacherID()
+{
+	return teacherID;
+}
+
+std::string Course::getClassID()
+{
+	return classID;
+}
+
+std::string Course::getCheckName(int index)
+{
+	return check.getCheckName(index);
+}
+
+double Course::getCheckRate(int index)
+{
+	return check.getCheckRate(index);
+}
+
+void Course::initialCheck(std::string name[], double rate[], int size)
+{
+	check.initialCheck(name, rate, size);
+}
+
+double Course::getOneScore(int index, int cindex)
+{
+	return check.getScore(index, cindex);
+}
+
+int Course::getOneScoreNum(int index)
+{
+	return check.getScoreNum(index);
+}
+
+void Course::insertScore(int index, double sc)
+{
+	check.insertScore(index, sc);
 }
 

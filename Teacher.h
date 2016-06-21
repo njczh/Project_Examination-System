@@ -92,9 +92,20 @@ public:
 	{
 		courses[n - 1].resetScoreRate();
 	}
+
 	void syncCourse(Course &myCourse, int n)
 	{
 		if (myCourse.getNumber() == courses[n - 1].getNumber())
 			myCourse = courses[n - 1];
 	}
+	//***************************************************ZiQin ÔöÓÚ 2016-6-21
+	string getCourseID(int index);
+	int getCourseTime(int index);
+	int getCourseCheckNum(int index);
+	string getCheckName(int index, int cindex);
+	double getCheckRate(int index, int cindex);
+	string getClassID(int index);
+	string getTeachID(int index);
+	void initialCheck(string name[], double rate[], int size, int index);
+	void setCourse(string name, string cID, string tID, int time);
 };

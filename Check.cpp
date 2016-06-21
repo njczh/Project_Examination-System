@@ -86,13 +86,15 @@ void Check::showTableInfo()
 	std::cout << std::left;
 	std::vector<type>::iterator it;
 	if (table.empty()) {
-		std::cout << "暂无考核项目！请先添加！" << std::endl; return;
+		std::cout << "暂无考核项目！请先添加！" << std::endl;
 	}
-	for (it = table.begin(); it != table.end(); it++) {
-		std::cout << std::setw(4) << (it - table.begin() + 1);
-		std::cout << std::setw(15) << it->name;
-		std::cout << "占总分：" << it->rate * 100 << "%";
-		std::cout << std::endl;
+	else {
+		for (it = table.begin(); it != table.end(); it++) {
+			std::cout << std::setw(4) << (it - table.begin() + 1);
+			std::cout << std::setw(15) << it->name;
+			std::cout << "占总分：" << it->rate * 100 << "%";
+			std::cout << std::endl;
+		}
 	}
 	std::cout << std::right;
 }
@@ -145,10 +147,11 @@ void Check::operateScore(int index, int n, double sc)
 
 bool Check::findIndexPos(int index, std::vector<type>::iterator & it)
 {
-	if (table.size() > index) return false;
-	else for (it = table.begin(); it != table.end(); it++) 
-			if (it - table.begin() == index) 
-				return true;
+	if (index < 0) return false;
+	for (it = table.begin(); it != table.end(); it++) 
+		if (it - table.begin() == index) 
+			return true;
+	return false;
 }
 
 void Check::printCheck(std::vector<type>::iterator it)
@@ -168,4 +171,39 @@ void Check::printCheck(std::vector<type>::iterator it)
 int Check::getCheckNum()
 {
 	return this->table.size();
+}
+
+std::string Check::getCheckName(int index)
+{
+	return table[index].name;
+}
+
+double Check::getCheckRate(int index)
+{
+	return table[index].rate;
+}
+
+void Check::initialCheck(std::string name[], double rate[], int size)
+{
+	for (int i = 0; i < size; i++) {
+		type temp;
+		temp.name = name[i];
+		temp.rate = rate[i];
+		table.push_back(temp);
+	}
+}
+
+double Check::getScore(int index, int cindex)
+{
+	return table[index].score[cindex];
+}
+
+int Check::getScoreNum(int index)
+{
+	return table[index].score.size();
+}
+
+void Check::insertScore(int index, double sc)
+{
+	table[index].score.push_back(sc);
 }

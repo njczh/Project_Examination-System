@@ -6,7 +6,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <conio.h>
 
 vector<Course> myCourses;
 vector<Student> myStudents;
@@ -20,13 +19,7 @@ void GoToXY(int x, int y)
 }
 
 void courseManagementMenu_1()/*课程信息管理——1.添加课程*/
-{		
-	/*
-		【沐】改：（整体思路）先输入老师编号，然后验证老师存在性，不存在，则不可添加，退出；
-		存在，则继续输入课程信息。
-		而不是所有信息输入后，才被告知没有老师的存在，
-		原代码这里的输入顺序更像是创建一个没有关联到老师的课程单体
-	*/
+{
 	system("cls");
 	cout << "正在进行【添加课程】，请按照提示操作。" << endl;
 
@@ -36,34 +29,29 @@ void courseManagementMenu_1()/*课程信息管理——1.添加课程*/
 	int newTime;
 	bool flag = false;
 
-	cout << "请输入需要添加课程的教师的工号：";
-	cin >> newTeacherID;
-	for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
-	{
-		if (iter->getWorkNum() == newTeacherID)
-		{
-			iter->addCourse(newCourse);
-			flag = true;
-		}
-	}
-	if (!flag) 
-	{ 
-		cout << endl<<"添加失败！ Error:没有该工号的教师！" << endl<<endl; 
-		return; 
-	}
 	cout << "请输入课程名：";
 	cin >> newName;
 	newCourse.setName(newName);
 
 	cout << "请输入3位'课程'编号：";
 	cin >> newCourseID;
-	
+	cout << "请输入6位'教师'编号：";
+	cin >> newTeacherID;
 	newCourse.setNumber(newCourseID, newTeacherID);
 
 	cout << "请输入课时数：";
 	cin >> newTime;
 
 	newCourse.setTime(newTime);
+
+	for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
+		if (iter->getWorkNum() == newTeacherID)
+		{
+			iter->addCourse(newCourse);
+			flag = true;
+		}
+
+	if (!flag) { cout << "添加失败！ Error:没有该工号的教师！" << endl; return; }
 
 	cout << "添加完成！" << endl;
 	myCourses.push_back(newCourse);
@@ -74,17 +62,14 @@ void courseManagementMenu_2()/*课程信息管理——2.删除课程*/
 	if (!myCourses.empty()) {
 		std::cout << "正在进行【删除课程】，请按照提示操作。" << endl;
 		for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
-		{
 			(*iter).showInfo();
-			cout << endl;
-		}
 	}
 	else {
-		std::cout << "抱歉！暂无可操作的课程！" << endl; return;
+		std::cout << "抱歉！暂无课程！" << endl; return;
 	}
 
 	string delNumber;
-	std::cout << "请输入课程编号：" ;
+	std::cout << "请输入课程编号：";
 	std::cin >> delNumber;
 	bool flag = false;
 	for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
@@ -94,60 +79,61 @@ void courseManagementMenu_2()/*课程信息管理——2.删除课程*/
 			std::system("cls");
 			flag = true;
 			(*iter).showInfo();
-			while(1)
+			while (1)
 			{
-				bool pd=false;			//判断修改操作是否合法
+				bool pd = false;			//判断修改操作是否合法
 				char confirm;
-				std::cout << "是否确认删除？"<<endl<<"  0.No"<<endl<<"  1.Yes " << endl;
+				std::cout << "是否确认删除？" << endl << "  0.No" << endl << "  1.Yes " << endl;
 				std::cin >> confirm;
-				std::cin.ignore(1024,'\n');
-				switch(confirm)
+				std::cin.ignore(1024, '\n');
+				switch (confirm)
 				{
 				case '1':
+				{
+					for (auto iter2 = myTeachers.begin(); iter2 != myTeachers.end(); ++iter2)
 					{
-						for (auto iter2 = myTeachers.begin(); iter2 != myTeachers.end(); ++iter2)
+						if (iter2->getWorkNum() == iter->getNumber().substr(6)) {
+							iter2->deleteCourse(*iter);//删除老师某一门课
+							break;
+						}
+					}
+					for (auto iter2 = myStudents.begin(); iter2 != myStudents.end(); iter2++)
+					{ // 逐个学生进行遍历
+						for (auto iter3 = iter2->courses.begin(); iter3 != iter2->courses.end(); iter3++)
 						{
-							if (iter2->getWorkNum() == iter->getNumber().substr(6)) {
-								iter2->deleteCourse(*iter);//删除老师某一门课
+							if (iter3->getNumber() == iter->getNumber())
+							{
+								iter2->courses.erase(iter3); // 删除学生某一门课
 								break;
 							}
 						}
-						for (auto iter2 = myStudents.begin(); iter2 != myStudents.end(); iter2++)
-						{ // 逐个学生进行遍历
-							for (auto iter3 = iter2->courses.begin(); iter3 != iter2->courses.end(); iter3++)
-							{
-								if (iter3->getNumber() == iter->getNumber()) 
-								{
-									iter2->courses.erase(iter3); // 删除学生某一门课
-									break;
-								}
-							}
-						}
-						myCourses.erase(iter);
-						std::cout << "删除成功！" << endl<<endl;
-						pd=1;
-						break;
 					}
-				case '0':
-					{
-						std::cout << "已取消操作！" << endl<<endl;
-						pd=1;
-						break;
-					}
-				default:
-					{
-						std::cout<<"您的输入不合法！请重新确认！"<<endl<<endl;
-						break;
-					}
+					myCourses.erase(iter);
+					std::cout << "删除成功！" << endl << endl;
+					pd = 1;
+					break;
 				}
-				if(pd) break;			//修改操作合法，跳出while循环
-				
+				case '0':
+				{
+					std::cout << "已取消操作！" << endl << endl;
+					pd = 1;
+					break;
+				}
+				default:
+				{
+					std::cout << "您的输入不合法！请重新确认！" << endl << endl;
+					break;
+				}
+				}
+				if (pd) break;			//修改操作合法，跳出while循环
+
 			}
 			break;		//在遍历中找到了这门唯一的课，进行一系列操作，操作完后就跳出
 		}
 	}
 	if (!flag) std::cout << "没有该课程！请确认课程编号!" << endl;
 }
+
 void courseManagementMenu_3()
 {
 	system("cls");
@@ -155,13 +141,10 @@ void courseManagementMenu_3()
 	{
 		cout << "正在进行【修改课程信息】，请按照提示操作。" << endl;
 		for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
-		{
 			(*iter).showInfo();
-		}
 	}
 	else {
-		cout << "抱歉！暂无课程！" << endl; 
-		return;
+		cout << "抱歉！暂无课程！" << endl; return;
 	}
 	string number;
 	int choice_2;
@@ -172,7 +155,6 @@ void courseManagementMenu_3()
 	{
 		if ((*iter).getNumber() == number)
 		{
-			system("cls");
 			cout << "正在修改《" << (*iter).getName() << "》，编号：" << iter->getNumber() << endl
 				<< "1.修改课程名称" << endl
 				<< "2.修改课程课时" << endl
@@ -188,7 +170,7 @@ void courseManagementMenu_3()
 				cout << "请输入新名称：";
 				cin >> newName;
 				(*iter).setName(newName);
-				cout << endl<<"修改成功！新名称为 " << (*iter).getName() << endl<<endl;
+				cout << "修改成功！新名称为 " << (*iter).getName() << endl;
 				break;
 			}
 			case 2:
@@ -197,7 +179,7 @@ void courseManagementMenu_3()
 				cout << "请输入新课时数：";
 				cin >> newTime;
 				(*iter).setTime(newTime);
-				cout <<endl<< "修改成功！新课时数为 " << (*iter).getTime() << endl<<endl;
+				cout << "修改成功！新课时数为 " << (*iter).getTime() << endl;
 				break;
 			}
 			case 3:
@@ -211,18 +193,17 @@ void courseManagementMenu_3()
 				cin >> newTN;
 
 				iter->setNumber(newCN, newTN);
-				cout << endl<<"修改成功！新编号为 " << (*iter).getNumber() << endl<<endl;
+				cout << "修改成功！新编号为 " << (*iter).getNumber() << endl;
 				break;
 			}
 			case 4:
-				cout<<endl<<"已取消修改！"<<endl<<endl;
 				break;
 			}
 			break;
 		}
 		++iter;
 	}
-	if (iter == myCourses.end()) cout << "————没有该课程！请确认课程编号!————" << endl<<endl;
+	if (iter == myCourses.end()) cout << "没有该课程！请确认课程编号!" << endl;
 }
 void courseManagementMenu_4()
 {
@@ -380,15 +361,11 @@ void teacherManagementMenu_2()
 	system("cls");
 	if (!myTeachers.empty()) {
 		cout << "正在进行【删除教师】，请按照提示操作。" << endl;
-		cout << "------------------------------------------------------------------" << endl
-			<< setw(8) << "工号" << setw(8) << "姓名" << setw(6) << "性别" << "   授课科目" << endl
-			<< "------------------------------------------------------------------" << endl;
 		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
 			(*iter).showTeacherInfo();
-		cout << "------------------------------------------------------------------" << endl;
 	}
 	else {
-		cout << endl<<"抱歉！暂无可操作的教师！" << endl<<endl; return;
+		cout << "抱歉！暂无教师！" << endl; return;
 	}
 
 	string delNumber;
@@ -403,21 +380,8 @@ void teacherManagementMenu_2()
 			bool confirm;
 			cout << "确认删除？（ 0.No/1.Yes ）" << endl;
 			cin >> confirm;
-			if (confirm)
-			{
-				
-				for (auto iter3 = myCourses.begin(); iter3 != myCourses.end(); )
-				{
-					if (iter3->getNumber_6() == iter->getWorkNum()) iter3=myCourses.erase(iter3);
-					else iter3++;
-				}
-				
-				for (auto iter3 = myStudents.begin(); iter3 != myStudents.end();++iter3 )
-					for (auto iter4 = iter3->courses.begin(); iter4 != iter3->courses.end();)
-						if (iter->getWorkNum() == iter4->getNumber_6()) iter4 = myCourses.erase(iter4);
-						else iter4++;
-				
-				myTeachers.erase(iter);//需要同步删除老师所对应的课程，学生下老师的课程
+			if (confirm) {
+				myTeachers.erase(iter);
 				cout << "删除成功！" << endl;
 				break;
 			}
@@ -776,19 +740,12 @@ void teacherLogin()
 			if (password == myTeachers[i].getPassword())
 			{
 				GoToXY(1, 8);
-				cout << "┏━━━━━━━━━━━━━━━┓" << endl;
+				cout << "┌───────────────┐" << endl;
 				GoToXY(1, 9);
-				cout << "┃     身份已认证！正在登录！   ┃" << endl;
+				cout << "│     身份已认证！正在登录！   │" << endl;
 				GoToXY(1, 10);
-				cout << "┗━━━━━━━━━━━━━━━┛" << endl;
-				Sleep(500);
-				for (int i = 3; i < 33; i += 2)
-				{
-					if (_kbhit()) break;
-					GoToXY(i, 9);
-					cout << "█";
-					Sleep(200);
-				}
+				cout << "└───────────────┘" << endl;
+				Sleep(2000);
 				teacherMenu(i);
 			}
 			else
@@ -920,7 +877,6 @@ void studentManagementMenu_3()
 					(*iter).showStuInfo();
 					cout << "------------------------------------------------------------------" << endl
 						<< right;
-					(*iter).showAllCoursesScore();
 					flag = true;
 					break;
 				}
@@ -946,7 +902,6 @@ void studentManagementMenu_3()
 					(*iter).showStuInfo();
 					cout << "------------------------------------------------------------------" << endl
 						<< right;
-					(*iter).showAllCoursesScore();
 					flag = true;
 					break;
 				}
@@ -1173,53 +1128,6 @@ void studentManagementMenu()
 		printStudentManagementMenu();
 	} while (choice != '6');
 }
-void studentMenu(int i)
-{
-	char choice;
-	printStudentMenu(i);
-	do
-	{
-		cin >> choice;
-		cin.ignore(1024, '\n');
-		switch (choice)
-		{
-		case '1':
-			break;
-		case '2':
-			break;
-
-		case '3':
-			printStudentInfo(myStudents[i]);
-			std::system("pause");//防止显示学生成绩单时一闪而过
-			break;
-
-		case '4':
-		{
-			string newPW;
-			string newPW2;
-			cout << "请输入新密码：";
-			cin >> newPW;
-			cout << "请再次输入密码：";
-			cin >> newPW2;
-			if (newPW == newPW2)
-			{
-				myStudents[i].setPassword(newPW);
-				cout << "修改成功！" << endl;
-			}
-			else cout << "修改失败！两次密码不匹配，请重试！" << endl;
-			std::system("pause");
-			break;
-		}
-		case '5':
-			continue;
-
-		default:
-			cout << "输入有误，请重新输入（1/2/3/4/5）: ";
-			continue;
-		}
-		printStudentMenu(i);
-	} while (choice != '5');
-}
 void studentLogin()
 {
 	string username;
@@ -1230,7 +1138,7 @@ void studentLogin()
 	GoToXY(13, 7);
 	cin >> username;
 	for ( i = 0; i < total; ++i)
-		if (username == myStudents[i].getStuNum())
+		if (username == myStudents[i].getName())
 		{
 			GoToXY(13, 10);
 			cin >> password;
@@ -1239,7 +1147,8 @@ void studentLogin()
 				GoToXY(0, 19);
 				cout << "登录成功!";
 				Sleep(2000);
-				studentMenu(i);
+				printStudentInfo(myStudents[i]);
+				std::system("pause");//防止显示学生成绩单时一闪而过
 			}
 			else
 			{
@@ -1303,19 +1212,12 @@ void adminLogin()
 			if (password == "admin")
 			{
 				GoToXY(1, 8);
-				cout << "┏━━━━━━━━━━━━━━━┓" << endl;
+				cout << "┌───────────────┐" << endl;
 				GoToXY(1, 9);
-				cout << "┃     身份已认证！正在登录！   ┃" << endl;
+				cout << "│     身份已认证！正在登录！   │" << endl;
 				GoToXY(1, 10);
-				cout << "┗━━━━━━━━━━━━━━━┛" << endl;
-				Sleep(500);
-				for (int i = 3; i < 33; i+=2)
-				{
-					if(_kbhit()) break;
-					GoToXY(i, 9);
-					cout << "█";
-					Sleep(200);
-				}
+				cout << "└───────────────┘" << endl;
+				Sleep(2000);
 					/*
 					<< "┌───────────────┐" << endl
 					<< "│     正    在    载    入     │" << endl
@@ -1332,15 +1234,10 @@ void adminLogin()
 			else
 			{
 				GoToXY(0, 19);
-				cout <<endl<< "————密码错误！请检查输入————" << endl<<endl;		//美化
+				cout << "密码错误！" << endl;
 				std::system("pause");
 			}
 			break;
-		}else
-		{
-			GoToXY(0, 19);
-			cout<<endl<<"————您的账号不存在！请检查输入。————"<<endl<<endl;		//分支判断
-			std::system("pause");
 		}
 }
 
@@ -1356,41 +1253,41 @@ void loadFile()
 		<< "│                            │" << endl
 		<< "│                            │" << endl
 		<< "└──────────────┘" << endl;
-	Teacher newTeacher;
 	string newName;
 	string newSex;
 	string newTeacherID;
+	string newPassword;
 	ifstream inTeacher("teachersData.dat");
 	if (!inTeacher)
 	{
 		cerr << "Can not open teacherData.dat !";
 		exit(1);
 	}
-	while (!inTeacher.eof())
-	{
-		inTeacher >> newName >> newSex >> newTeacherID;
-		newTeacher.setAllData(newName, newSex, newTeacherID, 0, "000000");
+	while (inTeacher >> newName >> newSex >> newTeacherID >> newPassword) {
+		Teacher newTeacher(newName, newSex, newTeacherID, newPassword);
 		myTeachers.push_back(newTeacher);
 	}
 	inTeacher.close();
 	GoToXY(2, 4);
 	cout << "1.教师信息…………………100%" << endl;
 
-	Course newCourse;
-	string newCourseID;
-	int newTime;
 	ifstream inCourse("coursesData.dat");
 	if (!inCourse)
 	{
 		cerr << "Can not open coursesData.dat !";
 		exit(1);
 	}
-	while (!inCourse.eof())
-	{
-		inCourse >> newName >> newCourseID >> newTeacherID >> newTime;
-		newCourse.setName(newName);
-		newCourse.setNumber(newCourseID, newTeacherID);
-		newCourse.setTime(newTime);
+	int newTime, newClassSum;
+	string newCourseID;
+	string name[50];
+	double rate[50] = { 0.0 };
+	while (inCourse >> newName >> newCourseID >> newTeacherID >> newTime) {
+		Course newCourse(newName, newTime, newCourseID, newTeacherID);
+		inCourse >> newClassSum;
+		for (int i = 0; i < newClassSum; i++) {
+			inCourse >> name[i] >> rate[i];
+		}
+		newCourse.initialCheck(name, rate, newClassSum);
 		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
 			if (iter->getWorkNum() == newTeacherID)
 				iter->addCourse(newCourse);
@@ -1411,10 +1308,48 @@ void loadFile()
 		cerr << "Can not open studentsData.dat !";
 		exit(1);
 	}
-	while (!inStudent.eof())
-	{
-		inStudent >> newName >> newSex >> newNum >> newIns >> newMajor >> newClass;
-		newStudent.setAllData(newName, newSex, newNum, newIns, newMajor, newClass, "000000");
+	int classSum;
+	while (inStudent >> newName >> newSex >> newNum >> newIns >> newMajor >> newClass >> newPassword) {
+		newStudent.setAllData(newName, newSex, newNum, newIns, newMajor, newClass, newPassword);
+		// 读取该生课程总数
+		inStudent >> classSum;
+		for (int i = 0; i < classSum; i++) {
+			string classNumber, teacherNumber;
+			// 读取课程编号
+			inStudent >> classNumber >> teacherNumber;
+			for (auto iter = myCourses.begin(); iter != myCourses.end(); iter++) {
+				// 如果与课程编号对应，则加入学生的课程表里面
+				if (classNumber + teacherNumber == iter->getNumber()) {
+					newStudent.courses.push_back(*iter);
+					bool ok = false;
+					// 查找该生的老师，将该生与老师关联
+					for (auto itear = myTeachers.begin(); itear != myTeachers.end(); itear++) {
+						for (int index = 0; index < itear->getClassSum(); index++)
+							if (teacherNumber == itear->getTeachID(index)) {
+								// 读取该门课程的考核信息
+								int CheckNum;
+								inStudent >> CheckNum;
+								for (int j = 0; j < CheckNum; j++) {
+									string checkName;
+									int scoreNum;
+									inStudent >> checkName >> scoreNum;
+
+									for (int k = 0; k < scoreNum; k++) {
+										double score;
+										inStudent >> score;
+										newStudent.courses[i].insertScore(j, score);
+									}
+								}
+								itear->addStudent(newStudent);
+								ok = true;
+								break;
+							}
+						if (ok) break;
+					}
+					break;
+				}
+			}
+		}
 		myStudents.push_back(newStudent);
 	}
 	inStudent.close();
@@ -1423,16 +1358,60 @@ void loadFile()
 	GoToXY(0, 9);
 }
 
+void saveToFile()
+{
+	// 保存课程信息
+	ofstream outCourse("coursesData.dat");
+	for (auto iter = myCourses.begin(); iter != myCourses.end(); iter++) {
+		outCourse << iter->getName() << " " << iter->getClassID() << " "
+			<< iter->getTeacherID() << " " << iter->getTime() << " "
+			<< iter->getCheckNum() << endl;
+		for (int i = 0; i < iter->getCheckNum(); i++) {
+			outCourse << iter->getCheckName(i) << " " << iter->getCheckRate(i) << endl;
+		}
+	}
+	outCourse.close();
+
+	// 保存教师信息
+	ofstream outTeacher("teachersData.dat");
+	for (auto iter = myTeachers.begin(); iter != myTeachers.end(); iter++) {
+		outTeacher << iter->getName() << " " << iter->getSex() << " " << iter->getWorkNum() << " " 
+			<< iter->getPassword() << endl;
+	}
+	outTeacher.close();
+
+	// 保存学生信息
+	ofstream outStudent("studentsData.dat");
+	for (auto iter = myStudents.begin(); iter != myStudents.end(); iter++) {
+		outStudent << iter->getName() << " " << iter->getSex() << " " << iter->getStuNum() << " "
+			<< iter->getStuInstitude() << " " << iter->getStuMajor() << " "
+			<< iter->getStuClass() << " " << iter->getPassword() << " " << iter->getClassSum() << endl;
+		// 打印该生的课程编号以及成绩
+		for (int i = 0; i < iter->getClassSum(); i++) {
+			outStudent << iter->courses[i].getClassID() << " " << iter->courses[i].getTeacherID() << " " << iter->courses[i].getCheckNum() << endl;
+			// 保存该生该课程的考核情况
+			for (int j = 0; j < iter->courses[i].getCheckNum(); j++) {
+				int ScoreNum = iter->courses[i].getOneScoreNum(j);
+				outStudent << iter->courses[i].getCheckName(i) << " " << ScoreNum;
+				for (int k = 0; k < ScoreNum; k++) {
+					outStudent << " " << iter->courses[i].getOneScore(j, k);
+				}
+				outStudent << endl;
+			}
+		}
+	}
+	outStudent.close();
+}
+
 int main()
 {
 	loadFile();
 	system("pause");
 	extern vector<Course> myCourses;
 	char choice;
-	
+	printMainMenu();
 	while (1)
 	{
-		printMainMenu();				//刷新屏幕
 		cin >> choice;
 		cin.ignore(1024, '\n');
 		switch (choice)
@@ -1450,14 +1429,15 @@ int main()
 
 		case '4':
 			printExit();
+			saveToFile();
 			return 0;
 
 		default:
 			GoToXY(0, 18);
-			cout << "输入有误！请重新输入 !                   "<<endl;	//清理屏幕
-			system("pause");
+			cout << "输入有误，请重新输入（1/2/3/4）: ";
 			continue;
 		}
+		printMainMenu();
 	}
 	return 0;
 }
