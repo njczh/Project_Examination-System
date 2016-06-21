@@ -92,5 +92,9 @@ public:
 	{
 		courses[n - 1].resetScoreRate();
 	}
-
+	void syncCourse(Course &myCourse, int n)
+	{
+		if (myCourse.getNumber() == courses[n - 1].getNumber())
+			myCourse = courses[n - 1];
+	}
 };

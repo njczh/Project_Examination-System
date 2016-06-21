@@ -238,22 +238,30 @@ void teacherModifyCourseCheck(int i)
 			string nm;
 			cin >> nm;
 			myTeachers[i].createCheck(No_, nm);
+			for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+				myTeachers[i].syncCourse((*iter), No_);
 			cout << "增加完成！" << endl;
 			break;
 		}
 		case '3':
 		{
 			myTeachers[i].showTeacherAllCourses();
+
 			cout << "请输入课程编号：";
 			int No_;
 			cin >> No_;
 			if (myTeachers[i].ofr(No_)) break;
 			cout << "\n正在进行【删除考核项目】，请按提示进行操作！" << endl;
 			myTeachers[i].showCourseInfo(No_);
+
 			cout << "请输入想删除考核项目的序号：";
 			int index;
 			cin >> index;
 			myTeachers[i].delCheck(No_, index - 1);
+
+			for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+				myTeachers[i].syncCourse((*iter), No_);
+
 			break;
 		}
 		case '4':
@@ -266,6 +274,10 @@ void teacherModifyCourseCheck(int i)
 			cout << "\n正在进行【修改考核比例】，请按提示进行操作！" << endl;
 			myTeachers[i].showCourseInfo(No_);
 			myTeachers[i].resetScoreRate(No_);
+
+			for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+				myTeachers[i].syncCourse((*iter), No_);
+
 			break;
 		}
 		case '5':
@@ -1161,12 +1173,18 @@ void adminLogin()
 			if (password == "admin")
 			{
 				GoToXY(1, 8);
-				cout << "┌───────────────┐" << endl;
+				cout << "┏━━━━━━━━━━━━━━━┓" << endl;
 				GoToXY(1, 9);
-				cout << "│     身份已认证！正在登录！   │" << endl;
+				cout << "┃     身份已认证！正在登录！   ┃" << endl;
 				GoToXY(1, 10);
-				cout << "└───────────────┘" << endl;
-				Sleep(2000);
+				cout << "┗━━━━━━━━━━━━━━━┛" << endl;
+				Sleep(500);
+				for (int i = 3; i < 33; i+=2)
+				{
+					GoToXY(i, 9);
+					cout << "█";
+					Sleep(200);
+				}
 					/*
 					<< "┌───────────────┐" << endl
 					<< "│     正    在    载    入     │" << endl
