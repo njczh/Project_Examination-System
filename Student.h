@@ -61,5 +61,6 @@ public:
 		else return false;
 	}
 
+
 	void showAllCoursesScore();
 };
