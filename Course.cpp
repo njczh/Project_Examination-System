@@ -62,7 +62,7 @@ void Course::showInfo()
 	std::cout << std::left << std::setw(4) << "ÐòºÅ" << std::setw(15) << "Ãû³Æ" << std::right << std::endl;
 	std::cout << "------------------------------------------------\n";
 	check.showTableInfo();
-	std::cout << "------------------------------------------------\n";
+	std::cout << "------------------------------------------------\n\n";
 }
 
 std::string Course::getName()

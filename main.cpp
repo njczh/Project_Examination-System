@@ -19,7 +19,13 @@ void GoToXY(int x, int y)
 }
 
 void courseManagementMenu_1()/*课程信息管理——1.添加课程*/
-{
+{		
+	/*
+		【沐】改：（整体思路）先输入老师编号，然后验证老师存在性，不存在，则不可添加，退出；
+		存在，则继续输入课程信息。
+		而不是所有信息输入后，才被告知没有老师的存在，
+		原代码这里的输入顺序更像是创建一个没有关联到老师的课程单体
+	*/
 	system("cls");
 	cout << "正在进行【添加课程】，请按照提示操作。" << endl;
 
@@ -29,14 +35,28 @@ void courseManagementMenu_1()/*课程信息管理——1.添加课程*/
 	int newTime;
 	bool flag = false;
 
+	cout << "请输入需要添加课程的教师的工号：";
+	cin >> newTeacherID;
+	for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
+	{
+		if (iter->getWorkNum() == newTeacherID)
+		{
+			iter->addCourse(newCourse);
+			flag = true;
+		}
+	}
+	if (!flag) 
+	{ 
+		cout << endl<<"添加失败！ Error:没有该工号的教师！" << endl<<endl; 
+		return; 
+	}
 	cout << "请输入课程名：";
 	cin >> newName;
 	newCourse.setName(newName);
 
 	cout << "请输入3位'课程'编号：";
 	cin >> newCourseID;
-	cout << "请输入6位'教师'编号：";
-	cin >> newTeacherID;
+	
 	newCourse.setNumber(newCourseID, newTeacherID);
 
 	cout << "请输入课时数：";
@@ -44,56 +64,85 @@ void courseManagementMenu_1()/*课程信息管理——1.添加课程*/
 
 	newCourse.setTime(newTime);
 
-	for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
-		if (iter->getWorkNum() == newTeacherID)
-		{
-			iter->addCourse(newCourse);
-			flag = true;
-		}
-
-	if (!flag) { cout << "添加失败！ Error:没有该工号的教师！" << endl; return; }
-
 	cout << "添加完成！" << endl;
 	myCourses.push_back(newCourse);
 }
 void courseManagementMenu_2()/*课程信息管理——2.删除课程*/
 {
-	system("cls");
+	std::system("cls");
 	if (!myCourses.empty()) {
-		cout << "正在进行【删除课程】，请按照提示操作。" << endl;
+		std::cout << "正在进行【删除课程】，请按照提示操作。" << endl;
 		for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
 			(*iter).showInfo();
 	}
 	else {
-		cout << "抱歉！暂无课程！" << endl; return;
+		std::cout << "抱歉！暂无可操作的课程！" << endl; return;
 	}
 
 	string delNumber;
-	cout << "请输入课程编号：" << endl;
-	cin >> delNumber;
+	std::cout << "请输入课程编号：" ;
+	std::cin >> delNumber;
 	bool flag = false;
 	for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+	{
 		if (delNumber == (*iter).getNumber())
 		{
+			std::system("cls");
 			flag = true;
 			(*iter).showInfo();
-			bool confirm;
-			cout << "确认删除？（ 0.No/1.Yes ）" << endl;
-			cin >> confirm;
-			if (confirm) {
-				for (auto iter2 = myTeachers.begin(); iter2 != myTeachers.end(); ++iter2)
-					if (iter2->getWorkNum() == iter->getNumber().substr(6)) {
-						iter2->deleteCourse(*iter);//删除老师某一门课
+			while(1)
+			{
+				bool pd=false;			//判断修改操作是否合法
+				char confirm;
+				std::cout << "是否确认删除？"<<endl<<"  0.No"<<endl<<"  1.Yes " << endl;
+				std::cin >> confirm;
+				std::cin.ignore(1024,'\n');
+				switch(confirm)
+				{
+				case '1':
+					{
+						for (auto iter2 = myTeachers.begin(); iter2 != myTeachers.end(); ++iter2)
+						{
+							if (iter2->getWorkNum() == iter->getNumber().substr(6)) {
+								iter2->deleteCourse(*iter);//删除老师某一门课
+								break;
+							}
+						}
+						for (auto iter2 = myStudents.begin(); iter2 != myStudents.end(); iter2++)
+						{ // 逐个学生进行遍历
+							for (auto iter3 = iter2->courses.begin(); iter3 != iter2->courses.end(); iter3++)
+							{
+								if (iter3->getNumber() == iter->getNumber()) 
+								{
+									iter2->courses.erase(iter3); // 删除学生某一门课
+									break;
+								}
+							}
+						}
+						myCourses.erase(iter);
+						std::cout << "删除成功！" << endl<<endl;
+						pd=1;
 						break;
 					}
-				myCourses.erase(iter);
-				cout << "删除成功！" << endl;
-				break;
+				case '0':
+					{
+						std::cout << "已取消操作！" << endl<<endl;
+						pd=1;
+						break;
+					}
+				default:
+					{
+						std::cout<<"您的输入不合法！请重新确认！"<<endl<<endl;
+						break;
+					}
+				}
+				if(pd) break;			//修改操作合法，跳出while循环
+				
 			}
-			else cout << "已取消操作！" << endl;
-			break;
+			break;		//在遍历中找到了这门唯一的课，进行一系列操作，操作完后就跳出
 		}
-	if (!flag) cout << "没有该课程！请确认课程编号!" << endl;
+	}
+	if (!flag) std::cout << "没有该课程！请确认课程编号!" << endl;
 }
 void courseManagementMenu_3()
 {
@@ -102,10 +151,13 @@ void courseManagementMenu_3()
 	{
 		cout << "正在进行【修改课程信息】，请按照提示操作。" << endl;
 		for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+		{
 			(*iter).showInfo();
+		}
 	}
 	else {
-		cout << "抱歉！暂无课程！" << endl; return;
+		cout << "抱歉！暂无课程！" << endl; 
+		return;
 	}
 	string number;
 	int choice_2;
@@ -116,6 +168,7 @@ void courseManagementMenu_3()
 	{
 		if ((*iter).getNumber() == number)
 		{
+			system("cls");
 			cout << "正在修改《" << (*iter).getName() << "》，编号：" << iter->getNumber() << endl
 				<< "1.修改课程名称" << endl
 				<< "2.修改课程课时" << endl
@@ -131,7 +184,7 @@ void courseManagementMenu_3()
 				cout << "请输入新名称：";
 				cin >> newName;
 				(*iter).setName(newName);
-				cout << "修改成功！新名称为 " << (*iter).getName() << endl;
+				cout << endl<<"修改成功！新名称为 " << (*iter).getName() << endl<<endl;
 				break;
 			}
 			case 2:
@@ -140,7 +193,7 @@ void courseManagementMenu_3()
 				cout << "请输入新课时数：";
 				cin >> newTime;
 				(*iter).setTime(newTime);
-				cout << "修改成功！新课时数为 " << (*iter).getTime() << endl;
+				cout <<endl<< "修改成功！新课时数为 " << (*iter).getTime() << endl<<endl;
 				break;
 			}
 			case 3:
@@ -154,17 +207,18 @@ void courseManagementMenu_3()
 				cin >> newTN;
 
 				iter->setNumber(newCN, newTN);
-				cout << "修改成功！新编号为 " << (*iter).getNumber() << endl;
+				cout << endl<<"修改成功！新编号为 " << (*iter).getNumber() << endl<<endl;
 				break;
 			}
 			case 4:
+				cout<<endl<<"已取消修改！"<<endl<<endl;
 				break;
 			}
 			break;
 		}
 		++iter;
 	}
-	if (iter == myCourses.end()) cout << "没有该课程！请确认课程编号!" << endl;
+	if (iter == myCourses.end()) cout << "————没有该课程！请确认课程编号!————" << endl<<endl;
 }
 void courseManagementMenu_4()
 {
@@ -314,7 +368,7 @@ void teacherManagementMenu_2()
 			(*iter).showTeacherInfo();
 	}
 	else {
-		cout << "抱歉！暂无教师！" << endl; return;
+		cout << endl<<"抱歉！暂无可操作的教师！" << endl<<endl; return;
 	}
 
 	string delNumber;
@@ -1183,10 +1237,15 @@ void adminLogin()
 			else
 			{
 				GoToXY(0, 19);
-				cout << "密码错误！" << endl;
+				cout <<endl<< "————密码错误！请检查输入————" << endl<<endl;		//美化
 				std::system("pause");
 			}
 			break;
+		}else
+		{
+			GoToXY(0, 19);
+			cout<<endl<<"————您的账号不存在！请检查输入。————"<<endl<<endl;		//分支判断
+			std::system("pause");
 		}
 }
 
@@ -1275,9 +1334,10 @@ int main()
 	system("pause");
 	extern vector<Course> myCourses;
 	char choice;
-	printMainMenu();
+	
 	while (1)
 	{
+		printMainMenu();				//刷新屏幕
 		cin >> choice;
 		cin.ignore(1024, '\n');
 		switch (choice)
@@ -1299,10 +1359,10 @@ int main()
 
 		default:
 			GoToXY(0, 18);
-			cout << "输入有误，请重新输入（1/2/3/4）: ";
+			cout << "输入有误！请重新输入 !                   "<<endl;	//清理屏幕
+			system("pause");
 			continue;
 		}
-		printMainMenu();
 	}
 	return 0;
 }
