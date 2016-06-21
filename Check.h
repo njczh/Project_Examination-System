@@ -39,6 +39,12 @@ public:
 	// 获得总分
 	double getAllScore();
 	int getCheckNum();		//获取考核项目的数量
+	std::string getCheckName(int index);
+	double getCheckRate(int index);
+	void initialCheck(std::string name[], double rate[], int size);
+	double getScore(int index, int cindex);
+	int getScoreNum(int index);
+	void insertScore(int index, double sc);
 private:
 	bool checkRate(std::vector<double> temp);
 	void operateScore(int index, int n, double sc = 0);
