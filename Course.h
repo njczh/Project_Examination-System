@@ -46,6 +46,13 @@ public:
 	std::string getNumber();
 	void setNumber(std::string courseID, std::string teacherID);
 	int getCheckNum();
+
+	/*******************CZH¸Ä*******************/
+	std::string getNumber_6()
+	{
+		return std::string(number,3);
+	}
+
 };
 
 #endif // COURSE_H_

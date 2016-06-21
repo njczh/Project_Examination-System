@@ -134,11 +134,14 @@ bool Student::is_IDPass(string password)					//密码是否验证通过
 }
 
 /****************************CZH添****************************/
-void Student::showAllCoursesScore()				
+void Student::showAllCoursesScore()
 {
+	if (classSum == 0) {cout << "暂无课程" << endl; return;}
+	cout << setw(6) << "序号" << setw(12) << "课程编号" << setw(15) << "课程名称" << setw(6) << "得分" << endl
+		<< "----------------------------------------------------------" << endl;
 	for (int i = 0; i < this->classSum; i++)
 	{
 		cout << setw(5) << i + 1 << "." << setw(12) << this->courses[i].getNumber() << setw(15) << this->courses[i].getName() <<setw(6)<<courses[i].getScore()<< endl;
 	}
-	cout << endl;
+	cout << "----------------------------------------------------------" << endl;
 }

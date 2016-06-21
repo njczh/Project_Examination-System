@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <conio.h>
 
 vector<Course> myCourses;
 vector<Student> myStudents;
@@ -62,7 +63,10 @@ void courseManagementMenu_2()/*课程信息管理——2.删除课程*/
 	if (!myCourses.empty()) {
 		cout << "正在进行【删除课程】，请按照提示操作。" << endl;
 		for (auto iter = myCourses.begin(); iter != myCourses.end(); ++iter)
+		{
 			(*iter).showInfo();
+			cout << endl;
+		}
 	}
 	else {
 		cout << "抱歉！暂无课程！" << endl; return;
@@ -322,8 +326,12 @@ void teacherManagementMenu_2()
 	system("cls");
 	if (!myTeachers.empty()) {
 		cout << "正在进行【删除教师】，请按照提示操作。" << endl;
+		cout << "------------------------------------------------------------------" << endl
+			<< setw(8) << "工号" << setw(8) << "姓名" << setw(6) << "性别" << "   授课科目" << endl
+			<< "------------------------------------------------------------------" << endl;
 		for (auto iter = myTeachers.begin(); iter != myTeachers.end(); ++iter)
 			(*iter).showTeacherInfo();
+		cout << "------------------------------------------------------------------" << endl;
 	}
 	else {
 		cout << "抱歉！暂无教师！" << endl; return;
@@ -341,8 +349,21 @@ void teacherManagementMenu_2()
 			bool confirm;
 			cout << "确认删除？（ 0.No/1.Yes ）" << endl;
 			cin >> confirm;
-			if (confirm) {
-				myTeachers.erase(iter);
+			if (confirm)
+			{
+				
+				for (auto iter3 = myCourses.begin(); iter3 != myCourses.end(); )
+				{
+					if (iter3->getNumber_6() == iter->getWorkNum()) iter3=myCourses.erase(iter3);
+					else iter3++;
+				}
+				
+				for (auto iter3 = myStudents.begin(); iter3 != myStudents.end();++iter3 )
+					for (auto iter4 = iter3->courses.begin(); iter4 != iter3->courses.end();)
+						if (iter->getWorkNum() == iter4->getNumber_6()) iter4 = myCourses.erase(iter4);
+						else iter4++;
+				
+				myTeachers.erase(iter);//需要同步删除老师所对应的课程，学生下老师的课程
 				cout << "删除成功！" << endl;
 				break;
 			}
@@ -701,12 +722,19 @@ void teacherLogin()
 			if (password == myTeachers[i].getPassword())
 			{
 				GoToXY(1, 8);
-				cout << "┌───────────────┐" << endl;
+				cout << "┏━━━━━━━━━━━━━━━┓" << endl;
 				GoToXY(1, 9);
-				cout << "│     身份已认证！正在登录！   │" << endl;
+				cout << "┃     身份已认证！正在登录！   ┃" << endl;
 				GoToXY(1, 10);
-				cout << "└───────────────┘" << endl;
-				Sleep(2000);
+				cout << "┗━━━━━━━━━━━━━━━┛" << endl;
+				Sleep(500);
+				for (int i = 3; i < 33; i += 2)
+				{
+					if (_kbhit()) break;
+					GoToXY(i, 9);
+					cout << "█";
+					Sleep(200);
+				}
 				teacherMenu(i);
 			}
 			else
@@ -838,6 +866,7 @@ void studentManagementMenu_3()
 					(*iter).showStuInfo();
 					cout << "------------------------------------------------------------------" << endl
 						<< right;
+					(*iter).showAllCoursesScore();
 					flag = true;
 					break;
 				}
@@ -863,6 +892,7 @@ void studentManagementMenu_3()
 					(*iter).showStuInfo();
 					cout << "------------------------------------------------------------------" << endl
 						<< right;
+					(*iter).showAllCoursesScore();
 					flag = true;
 					break;
 				}
@@ -1089,6 +1119,53 @@ void studentManagementMenu()
 		printStudentManagementMenu();
 	} while (choice != '6');
 }
+void studentMenu(int i)
+{
+	char choice;
+	printStudentMenu(i);
+	do
+	{
+		cin >> choice;
+		cin.ignore(1024, '\n');
+		switch (choice)
+		{
+		case '1':
+			break;
+		case '2':
+			break;
+
+		case '3':
+			printStudentInfo(myStudents[i]);
+			std::system("pause");//防止显示学生成绩单时一闪而过
+			break;
+
+		case '4':
+		{
+			string newPW;
+			string newPW2;
+			cout << "请输入新密码：";
+			cin >> newPW;
+			cout << "请再次输入密码：";
+			cin >> newPW2;
+			if (newPW == newPW2)
+			{
+				myStudents[i].setPassword(newPW);
+				cout << "修改成功！" << endl;
+			}
+			else cout << "修改失败！两次密码不匹配，请重试！" << endl;
+			std::system("pause");
+			break;
+		}
+		case '5':
+			continue;
+
+		default:
+			cout << "输入有误，请重新输入（1/2/3/4/5）: ";
+			continue;
+		}
+		printStudentMenu(i);
+	} while (choice != '5');
+}
 void studentLogin()
 {
 	string username;
@@ -1099,7 +1176,7 @@ void studentLogin()
 	GoToXY(13, 7);
 	cin >> username;
 	for ( i = 0; i < total; ++i)
-		if (username == myStudents[i].getName())
+		if (username == myStudents[i].getStuNum())
 		{
 			GoToXY(13, 10);
 			cin >> password;
@@ -1108,8 +1185,7 @@ void studentLogin()
 				GoToXY(0, 19);
 				cout << "登录成功!";
 				Sleep(2000);
-				printStudentInfo(myStudents[i]);
-				std::system("pause");//防止显示学生成绩单时一闪而过
+				studentMenu(i);
 			}
 			else
 			{
@@ -1181,6 +1257,7 @@ void adminLogin()
 				Sleep(500);
 				for (int i = 3; i < 33; i+=2)
 				{
+					if(_kbhit()) break;
 					GoToXY(i, 9);
 					cout << "█";
 					Sleep(200);

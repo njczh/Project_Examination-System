@@ -6,6 +6,8 @@ using namespace std;
 
 extern vector<Teacher> myTeachers;
 
+extern vector<Student> myStudents;
+
 void printMainMenu()
 {
 	system("cls");
@@ -121,6 +123,24 @@ void printStudentManagementMenu()
 		<< "请输入您的选择（1/2/3/4/5/6）：";
 }
 
+void printStudentMenu(int i)
+{
+	std::system("cls");
+	cout << right
+		<< endl
+		<< setw(28) << "过程考核系统 1-3" << endl
+		<< "------------------------------------" << endl
+		<< setw(18) << "欢迎您，" << myStudents[i].getName() << " 同学" << endl           //学生姓名
+		<< "------------------------------------" << endl
+		<< setw(12) << " " << "1.查看课程表" << endl
+		<< setw(12) << " " << "2.选课" << endl
+		<< setw(12) << " " << "3.查看成绩单" << endl
+		<< setw(12) << " " << "4.修改登录密码" << endl
+		<< setw(12) << " " << "5.返回上级菜单" << endl
+		<< "------------------------------------" << endl
+		<< "请输入您的选择（1/2/3/4）：";
+}
+
 void printTeacherMenu(int i)
 {
 	std::system("cls");
@@ -162,9 +182,9 @@ void printStudentInfo(Student &stu)
 	cout << left
 		<< endl
 		<< setw(20) <<" "<< "成绩单" << endl
-		<< "----------------------------------------------------------" << endl
+		<< "==========================================================" << endl
 		<< "姓名：" << setw(8) << stu.getName() << "班级：" << setw(8) << stu.getStuClass() << "学号：" << setw(8) << stu.getStuNum() << endl      //具体姓名班级学号
-		<< "----------------------------------------------------------" << endl;
+		<< "==========================================================" << endl;
 	stu.showAllCoursesScore();
-	cout << "----------------------------------------------------------" << endl;
+	cout << "==========================================================" << endl;
 }
