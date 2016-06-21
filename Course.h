@@ -12,9 +12,10 @@ private:
 	std::string name;
 	Check check;
 	int time;
+	std::string classID, teacherID;
 public:
 	// courseID是科目编号，teacherID是教师编号
-	Course(){}
+	Course();
 	Course(std::string nm, int t, std::string courseID, std::string teacherID);
 	~Course() {}
 
@@ -46,13 +47,14 @@ public:
 	std::string getNumber();
 	void setNumber(std::string courseID, std::string teacherID);
 	int getCheckNum();
-
-	/*******************CZH改*******************/
-	std::string getNumber_6()
-	{
-		return std::string(number,3);
-	}
-
+	std::string getTeacherID();
+	std::string getClassID();
+	std::string getCheckName(int index);
+	double getCheckRate(int index);
+	void initialCheck(std::string name[], double rate[], int size);
+	double getOneScore(int index, int cindex);
+	int getOneScoreNum(int index);
+	void insertScore(int index, double sc);
 };
 
 #endif // COURSE_H_
